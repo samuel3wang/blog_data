@@ -13,8 +13,19 @@ func Getdata(r *gin.Context){
 	
 	psql.DB.Find(&blog)
 
-	
-
+	// fmt.Println(blog)
+	var i int
+	for i = 0 ; i<len(blog) ; i++{
+		shortText := blog[i].Content[:15]
+		fmt.Println(shortText)
+		blog[i].Content = shortText
+	}
+	// test2 := blog[1].Content
+	// test := test2[:4]
+	// text := "sjdfl;jsaklfjskljfl"
+	// shsh := text[:5]
+	// fmt.Println(test)
+	// fmt.Println(shsh)
 
 	r.JSON(http.StatusOK, gin.H{
 		"message" : "all posts",
