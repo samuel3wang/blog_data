@@ -1,34 +1,53 @@
 package api
 
 import (
+	"fmt"
 	"net/http"
-	"github.com/gin-gonic/gin"
-	"blog_data/psql"
-)
-// query parameters
-func RegisterRouter(){
-	r := gin.Default()
-	r.GET("/blogs", 		Getdata)
-	r.GET("/blogs/:title", 	Show)
-
-	// r.POST("/posts", 		Store)
-	// r.PUT("/posts/:id", 	Update)
-	// r.DELETE("/posts/:id", 	Delete)
 	
-	r.Run(":8088")
-}
+	"blog_data/psql"
+	"github.com/gin-gonic/gin"
+)
+
 func Getdata(r *gin.Context){
 	var blog []Blog
 	
 	psql.DB.Find(&blog)
+
+	
+
 
 	r.JSON(http.StatusOK, gin.H{
 		"message" : "all posts",
 		"data" : blog,
 	})
 }
+// ----------------------------------------------------------------
+// func GetCategory(r *gin.Context){
+// 	var blog []Blog
+
+// 	psql.DB.Distinct("category").Find(&blog)
+
+// 	r.JSON(http.StatusOK, gin.H{
+// 		"message" : "all categories",
+// 		"data" : blog,
+// 	})
+
+// }
+func GetCategory(r *gin.Context){
+	var categorys []Category
+
+	psql.DB.Table("blogs").Distinct("category").Find(&categorys)
+
+	r.JSON(http.StatusOK, gin.H{
+		"message" : "all categories",
+		"data" : categorys,
+	})
+
+}
+// ----------------------------------------------------------------
 func Show(r *gin.Context){
-	blog := getById(r)
+	blog := getByCategory(r)
+	fmt.Println(blog)
 	if blog.Title == "" {
 		return
 	}
@@ -37,66 +56,14 @@ func Show(r *gin.Context){
 		"data" : blog,
 	})
 }
-// func Store(r *gin.Context){
-// 	var person People
-// 	if err := r.ShouldBindJSON(&person); err != nil {
-// 		r.JSON(http.StatusBadRequest, gin.H{
-// 			"message" : "the required element missed",
-// 			"data" : "",
-// 		})
-// 	}
-// 	psql.DB.Create(&person)
-// 	r.JSON(http.StatusOK, gin.H{
-// 		"message" : "all people",
-// 		"data" : person,
-// 	})
-// }
-// func Update(r *gin.Context){
-// 	oldperson := getById(r)
-// 	if oldperson.Name == ""{
-// 		return
-// 	}
 
-// 	var update People
-// 	if err := r.ShouldBindJSON(&update); err != nil {
-// 		r.JSON(http.StatusBadRequest, gin.H{
-// 			"message" : "the required element missed",
-// 			"data" : "",
-// 		})
-// 	}
-
-// 	oldperson.Ex = update.Ex
-// 	oldperson.ID = update.ID
-// 	oldperson.Name = update.Name
-// 	psql.DB.Save(&oldperson)
-// 	r.JSON(http.StatusOK, gin.H{
-// 		"message" : "update successfully",
-// 		"data" : oldperson,
-// 	})
-// }
-// func Delete(r *gin.Context){
-// 	var person People
-// 	id := r.Param("id")
-// 	psql.DB.First(&person, id)
-// 	if person.Name == "" {
-// 		r.JSON(http.StatusNotFound, gin.H{
-// 			"message" : "can not find this person",
-// 			"data" : "",
-// 		})
-// 		return
-// 	}
-	
-// 	psql.DB.Delete(&person)
-// 	r.JSON(http.StatusOK, gin.H{
-// 		"message" : "",
-// 		"data" : "delete successfully",
-// 	})
-// }
-func getById(r *gin.Context) Blog{
+func getByCategory(r *gin.Context) Blog {
 	var blog Blog
-	title := r.Param("title")
-	psql.DB.First(&blog, title)
-	if blog.Title == "" {
+	category := r.Param("category")
+
+	psql.DB.Find(&blog, "category = ?", category)
+	
+	if (blog.Title) == "" {
 		r.JSON(http.StatusNotFound, gin.H{
 			"message" : "can not find this person",
 			"data" : "",
