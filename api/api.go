@@ -3,29 +3,29 @@ package api
 import (
 	"fmt"
 	"net/http"
-	
+	"strings"
+
 	"blog_data/psql"
 	"github.com/gin-gonic/gin"
 )
 
+// 設定字數
+func limitString(str string, limit int) string {
+	str = strings.TrimSpace(strings.Replace(str, "\n", "", -1))
+	return string([]rune(str)[:limit])
+}
+
+// query home 預覽
 func Getdata(r *gin.Context){
 	var blog []Blog
 	
 	psql.DB.Find(&blog)
 
-	// fmt.Println(blog)
-	var i int
-	for i = 0 ; i<len(blog) ; i++{
-		shortText := blog[i].Content[:15]
-		fmt.Println(shortText)
-		blog[i].Content = shortText
-	}
-	// test2 := blog[1].Content
-	// test := test2[:4]
-	// text := "sjdfl;jsaklfjskljfl"
-	// shsh := text[:5]
-	// fmt.Println(test)
-	// fmt.Println(shsh)
+		var i int
+		for i = 0 ; i<len(blog) ; i++{
+			shortText := limitString(blog[i].Content, 95) + " ..."
+			blog[i].Content = shortText
+		}
 
 	r.JSON(http.StatusOK, gin.H{
 		"message" : "all posts",
@@ -33,17 +33,8 @@ func Getdata(r *gin.Context){
 	})
 }
 // ----------------------------------------------------------------
-// func GetCategory(r *gin.Context){
-// 	var blog []Blog
 
-// 	psql.DB.Distinct("category").Find(&blog)
-
-// 	r.JSON(http.StatusOK, gin.H{
-// 		"message" : "all categories",
-// 		"data" : blog,
-// 	})
-
-// }
+// get category list
 func GetCategory(r *gin.Context){
 	var categorys []Category
 
@@ -56,29 +47,34 @@ func GetCategory(r *gin.Context){
 
 }
 // ----------------------------------------------------------------
-func Show(r *gin.Context){
-	blog := getByCategory(r)
-	fmt.Println(blog)
-	if blog.Title == "" {
-		return
+// query category title
+func Show(r *gin.Context)  {
+	var title []struct{
+		Title_id int `json:"title_id"`
+		Title string `json:"title"`
 	}
+	category := r.Param("category")
+	psql.DB.Model(&Blog{}).Select("title_id", "title").Where("category = ?", category).Find(&title)
+
+	r.JSON(http.StatusOK, gin.H{
+		"message" : "",
+		"data" : title,
+	})
+}
+// ----------------------------------------------------------------
+// query whole post
+func WholePost(r *gin.Context)  {
+	var blog Blog
+
+	title_id := r.Param("title_id")
+	psql.DB.Where("title_id = ?", title_id).Find(&blog)
+
 	r.JSON(http.StatusOK, gin.H{
 		"message" : "",
 		"data" : blog,
 	})
 }
-
-func getByCategory(r *gin.Context) Blog {
-	var blog Blog
-	category := r.Param("category")
-
-	psql.DB.Find(&blog, "category = ?", category)
-	
-	if (blog.Title) == "" {
-		r.JSON(http.StatusNotFound, gin.H{
-			"message" : "can not find this person",
-			"data" : "",
-		})
-	}
-	return blog
+// -------------------------------------------------------------------
+func Fmt(){
+	fmt.Println("aaa")
 }

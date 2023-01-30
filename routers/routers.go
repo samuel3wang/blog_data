@@ -13,8 +13,9 @@ func RegisterRouter() *gin.Engine{
 		corsConfig.AllowAllOrigins = true
 		r.Use(cors.New(corsConfig))
 
-	r.GET("/blogs",						api.Getdata)
-	r.GET("/category",				api.GetCategory)	
+	r.GET("/blogs",								api.Getdata)
+	r.GET("/blog/:title_id",			api.WholePost)
+	r.GET("/category",						api.GetCategory)	
 	r.GET("/category/:category",	api.Show)
 
 	return r

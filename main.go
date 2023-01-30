@@ -9,7 +9,6 @@ func main()  {
 	psql.ConnectDB()
 
 	r := routers.RegisterRouter()
-		
-	r.Run(":8088")
 
+	r.Run(":8088")
 }
