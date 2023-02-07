@@ -10,7 +10,7 @@ type Blog struct {
 	Content		string		`json:"content"`
 	Category	string		`json:"category"`
 	Image			string		`json:"image"`
-	Time		time.Time		`json:"time"`
+	Time			time.Time	`json:"time"`
 }
 type Category struct {
 	Category string `json:"category"`

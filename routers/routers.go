@@ -9,9 +9,10 @@ import (
 
 func RegisterRouter() *gin.Engine{
 	r := gin.Default()
-		corsConfig := cors.DefaultConfig()
-		corsConfig.AllowAllOrigins = true
-		r.Use(cors.New(corsConfig))
+	
+	corsConfig := cors.DefaultConfig()
+	corsConfig.AllowAllOrigins = true
+	r.Use(cors.New(corsConfig))
 
 	r.GET("/blogs",								api.Getdata)
 	r.GET("/blog/:title_id",			api.WholePost)
